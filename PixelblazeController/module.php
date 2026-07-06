@@ -11,6 +11,9 @@ class PixelblazeController extends IPSModule
         // Fordere WebSocket Client als Parent an
         $this->RequireParent("{D68FD31F-0E90-7019-F16C-1949BD3079EF}");
 
+        // Properties
+        $this->RegisterPropertyInteger('AutoReconnectInterval', 30);
+
         // Internes Attribut für die letzte Helligkeit vor dem Ausschalten
         $this->RegisterAttributeFloat('LastBrightness', 50.0);
 
@@ -23,11 +26,17 @@ class PixelblazeController extends IPSModule
 
         $this->RegisterVariableString('ActiveProgramID', 'Programm ID', '', 30);
         $this->EnableAction('ActiveProgramID');
+
+        // Timer für Auto-Reconnect
+        $this->RegisterTimer('ReconnectTimer', 0, 'PB_Reconnect($_IPS[\'TARGET\']);');
     }
 
     public function ApplyChanges()
     {
         parent::ApplyChanges();
+
+        $interval = $this->ReadPropertyInteger('AutoReconnectInterval');
+        $this->SetTimerInterval('ReconnectTimer', $interval * 1000);
 
         if (function_exists('IPS_SetVariableCustomPresentation')) {
             IPS_SetVariableCustomPresentation($this->GetIDForIdent('Power'), [
@@ -109,6 +118,29 @@ class PixelblazeController extends IPSModule
     public function FetchPrograms()
     {
         $this->SendJsonCommand(json_encode(['listPrograms' => true]));
+    }
+
+    public function Reconnect()
+    {
+        if (!$this->HasActiveParent()) {
+            $parentID = $this->GetParentID();
+            if ($parentID > 0) {
+                // Nur reconnecten, wenn die Instanz grundstzlich "Open" geschaltet ist
+                if (IPS_GetProperty($parentID, 'Open')) {
+                    $this->LogMessage("Verbindung getrennt. Versuche Reconnect...");
+                    @IPS_SetProperty($parentID, 'Open', false);
+                    @IPS_ApplyChanges($parentID);
+                    @IPS_SetProperty($parentID, 'Open', true);
+                    @IPS_ApplyChanges($parentID);
+                }
+            }
+        }
+    }
+
+    private function GetParentID()
+    {
+        $instance = @IPS_GetInstance($this->InstanceID);
+        return ($instance && isset($instance['ConnectionID'])) ? $instance['ConnectionID'] : 0;
     }
 
     public function ReceiveData($JSONString)
