@@ -1,0 +1,11 @@
+{
+    "id": "{9E05AE57-F71D-457A-AB30-A8FE3A086782}",
+    "name": "PixelblazeController",
+    "type": 3,
+    "vendor": "SmartVillaKunterbunt",
+    "aliases": ["Pixelblaze"],
+    "parentRequirements": ["{D68FD31F-0E90-7019-F16C-1949BD3079EF}"],
+    "childRequirements": [],
+    "implemented": ["{123164F0-A39B-4D14-99D3-A122DB9E29AB}"],
+    "prefix": "PB"
+}
