@@ -8,6 +8,9 @@ class PixelblazeController extends IPSModule
     {
         parent::Create();
 
+        // Fordere WebSocket Client als Parent an
+        $this->RequireParent("{D68FD31F-0E90-7019-F16C-1949BD3079EF}");
+
         // Internes Attribut für die letzte Helligkeit vor dem Ausschalten
         $this->RegisterAttributeFloat('LastBrightness', 50.0);
 
