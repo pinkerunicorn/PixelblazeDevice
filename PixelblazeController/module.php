@@ -20,13 +20,13 @@ class PixelblazeController extends IPSModule
         $this->RegisterAttributeString('ProgramMap', '[]');
 
         // Variablen
-        $this->RegisterVariableBoolean('Power', 'Status', '~Switch', 10);
+        $this->RegisterVariableBoolean('Power', '💡 Status', '~Switch', 10);
         $this->EnableAction('Power');
 
-        $this->RegisterVariableInteger('Brightness', 'Helligkeit', '~Intensity.100', 20);
+        $this->RegisterVariableInteger('Brightness', '🔆 Helligkeit', '~Intensity.100', 20);
         $this->EnableAction('Brightness');
 
-        $this->RegisterVariableInteger('ActiveProgram', 'Programm', '', 30);
+        $this->RegisterVariableInteger('ActiveProgram', '🎨 Programm', '', 30);
         $this->EnableAction('ActiveProgram');
 
         // Timer für Auto-Reconnect
