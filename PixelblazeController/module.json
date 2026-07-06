@@ -4,7 +4,7 @@
     "type": 3,
     "vendor": "SmartVillaKunterbunt",
     "aliases": ["Pixelblaze"],
-    "parentRequirements": ["{D68FD31F-0E90-7019-F16C-1949BD3079EF}"],
+    "parentRequirements": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}"],
     "childRequirements": [],
     "implemented": ["{123164F0-A39B-4D14-99D3-A122DB9E29AB}"],
     "prefix": "PB"
