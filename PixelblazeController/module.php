@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 class PixelblazeController extends IPSModule
 {
-    public function Create()
+    public function Create(): void
     {
         parent::Create();
 
@@ -33,7 +33,7 @@ class PixelblazeController extends IPSModule
         $this->RegisterTimer('ReconnectTimer', 0, 'PB_Reconnect($_IPS[\'TARGET\']);');
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         parent::ApplyChanges();
 
@@ -67,12 +67,12 @@ class PixelblazeController extends IPSModule
         }
     }
 
-    protected function LogMessage($Message, $KL_MESSAGE = KL_MESSAGE)
+    protected function LogMessage($Message, $KL_MESSAGE = KL_MESSAGE): void
     {
         IPS_LogMessage('SmartVillaKunterbunt', 'Pixelblaze: ' . $Message);
     }
 
-    public function RequestAction($Ident, $Value)
+    public function RequestAction($Ident, $Value): void
     {
         switch ($Ident) {
             case 'Power':
@@ -131,12 +131,12 @@ class PixelblazeController extends IPSModule
         }
     }
 
-    public function FetchPrograms()
+    public function FetchPrograms(): void
     {
         $this->SendJsonCommand(json_encode(['listPrograms' => true]));
     }
 
-    public function Reconnect()
+    public function Reconnect(): void
     {
         if (!$this->HasActiveParent()) {
             $parentID = $this->GetParentID();
@@ -153,13 +153,13 @@ class PixelblazeController extends IPSModule
         }
     }
 
-    private function GetParentID()
+    private function GetParentID(): int
     {
         $instance = @IPS_GetInstance($this->InstanceID);
         return ($instance && isset($instance['ConnectionID'])) ? $instance['ConnectionID'] : 0;
     }
 
-    public function ReceiveData($JSONString)
+    public function ReceiveData($JSONString): void
     {
         $data = json_decode($JSONString, true);
         
@@ -220,7 +220,7 @@ class PixelblazeController extends IPSModule
         }
     }
 
-    private function ProcessProgramList($rawList)
+    private function ProcessProgramList($rawList): void
     {
         $lines = explode("\n", trim($rawList));
         $programs = [];
@@ -267,7 +267,7 @@ class PixelblazeController extends IPSModule
         }
     }
 
-    private function SetBrightness(float $percent)
+    private function SetBrightness(float $percent): void
     {
         // Pixelblaze erwartet Float von 0.0 bis 1.0
         $floatValue = $percent / 100.0;
@@ -278,13 +278,13 @@ class PixelblazeController extends IPSModule
         $this->SendWebSocketCommand($command);
     }
 
-    private function SetActiveProgram(string $programId)
+    private function SetActiveProgram(string $programId): void
     {
         $command = ['activeProgramId' => $programId];
         $this->SendWebSocketCommand($command);
     }
 
-    public function SendJsonCommand(string $jsonString)
+    public function SendJsonCommand(string $jsonString): void
     {
         $data = json_decode($jsonString, true);
         if ($data) {
@@ -294,7 +294,7 @@ class PixelblazeController extends IPSModule
         }
     }
 
-    private function SendWebSocketCommand(array $payload)
+    private function SendWebSocketCommand(array $payload): void
     {
         if (!$this->HasActiveParent()) {
             $this->LogMessage("Fehler: Kein aktiver WebSocket Client verbunden.");
