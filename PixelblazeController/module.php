@@ -16,6 +16,8 @@ class PixelblazeController extends IPSModule
 
         // Internes Attribut für die letzte Helligkeit vor dem Ausschalten
         $this->RegisterAttributeInteger('LastBrightness', 50);
+        // Internes Attribut für die Programmliste (Map von Index -> String ID)
+        $this->RegisterAttributeString('ProgramMap', '[]');
 
         // Variablen
         $this->RegisterVariableBoolean('Power', 'Status', '~Switch', 10);
@@ -24,8 +26,8 @@ class PixelblazeController extends IPSModule
         $this->RegisterVariableInteger('Brightness', 'Helligkeit', '~Intensity.100', 20);
         $this->EnableAction('Brightness');
 
-        $this->RegisterVariableString('ActiveProgramID', 'Programm ID', '', 30);
-        $this->EnableAction('ActiveProgramID');
+        $this->RegisterVariableInteger('ActiveProgram', 'Programm', '', 30);
+        $this->EnableAction('ActiveProgram');
 
         // Timer für Auto-Reconnect
         $this->RegisterTimer('ReconnectTimer', 0, 'PB_Reconnect($_IPS[\'TARGET\']);');
@@ -34,6 +36,12 @@ class PixelblazeController extends IPSModule
     public function ApplyChanges()
     {
         parent::ApplyChanges();
+
+        // Alte String-Variable löschen falls vorhanden
+        $oldVar = @$this->GetIDForIdent('ActiveProgramID');
+        if ($oldVar > 0) {
+            $this->UnregisterVariable('ActiveProgramID');
+        }
 
         $interval = $this->ReadPropertyInteger('AutoReconnectInterval');
         $this->SetTimerInterval('ReconnectTimer', $interval * 1000);
@@ -53,7 +61,7 @@ class PixelblazeController extends IPSModule
                 'SUFFIX' => ' %'
             ]);
 
-            IPS_SetVariableCustomPresentation($this->GetIDForIdent('ActiveProgramID'), [
+            IPS_SetVariableCustomPresentation($this->GetIDForIdent('ActiveProgram'), [
                 'ICON' => 'Script'
             ]);
         }
@@ -104,10 +112,18 @@ class PixelblazeController extends IPSModule
                 }
                 break;
 
-            case 'ActiveProgramID':
-                $this->SetActiveProgram((string)$Value);
-                $this->SetValue('ActiveProgramID', (string)$Value);
-                $this->LogMessage("Programm gewechselt auf ID: " . $Value);
+            case 'ActiveProgram':
+                $mapRaw = $this->ReadAttributeString('ProgramMap');
+                $map = json_decode($mapRaw, true);
+                if (is_array($map) && isset($map[(int)$Value])) {
+                    $progId = $map[(int)$Value]['id'];
+                    $progName = $map[(int)$Value]['name'];
+                    $this->SetActiveProgram($progId);
+                    $this->SetValue('ActiveProgram', (int)$Value);
+                    $this->LogMessage("Programm gewechselt auf: " . $progName);
+                } else {
+                    $this->LogMessage("Fehler: Programm-Index " . $Value . " nicht gefunden.");
+                }
                 break;
 
             default:
@@ -165,8 +181,18 @@ class PixelblazeController extends IPSModule
                     }
                     if (isset($payload['activeProgram']['activeProgramId'])) {
                         $progId = $payload['activeProgram']['activeProgramId'];
-                        if ($progId != $this->GetValue('ActiveProgramID')) {
-                            $this->SetValue('ActiveProgramID', $progId);
+                        
+                        $mapRaw = $this->ReadAttributeString('ProgramMap');
+                        $map = json_decode($mapRaw, true);
+                        if (is_array($map)) {
+                            foreach ($map as $index => $progData) {
+                                if ($progData['id'] === $progId) {
+                                    if ($index != $this->GetValue('ActiveProgram')) {
+                                        $this->SetValue('ActiveProgram', $index);
+                                    }
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -198,37 +224,41 @@ class PixelblazeController extends IPSModule
     {
         $lines = explode("\n", trim($rawList));
         $programs = [];
+        $index = 0;
         foreach ($lines as $line) {
             $parts = explode("\t", trim($line));
             if (count($parts) >= 2) {
                 $id = $parts[0];
                 $name = $parts[1];
                 if (!empty($id)) {
-                    $programs[$id] = $name;
+                    $programs[$index] = ['id' => $id, 'name' => $name];
+                    $index++;
                 }
             }
         }
 
         if (count($programs) > 0) {
+            $this->WriteAttributeString('ProgramMap', json_encode($programs));
+
             $profileName = "Pixelblaze.Program." . $this->InstanceID;
             
             if (!IPS_VariableProfileExists($profileName)) {
-                IPS_CreateVariableProfile($profileName, 3); // 3 = String
+                IPS_CreateVariableProfile($profileName, 1); // 1 = Integer
                 IPS_SetVariableProfileIcon($profileName, "Script");
             }
 
-            // Alle alten Assoziationen lschen
+            // Alle alten Assoziationen löschen
             $oldProfile = IPS_GetVariableProfile($profileName);
             foreach ($oldProfile['Associations'] as $asc) {
                 IPS_SetVariableProfileAssociation($profileName, $asc['Value'], "", "", -1);
             }
 
-            // Neue Assoziationen hinzufgen
-            foreach ($programs as $id => $name) {
-                IPS_SetVariableProfileAssociation($profileName, $id, $name, "", -1);
+            // Neue Assoziationen hinzufügen
+            foreach ($programs as $i => $prog) {
+                IPS_SetVariableProfileAssociation($profileName, $i, $prog['name'], "", -1);
             }
 
-            $varID = $this->GetIDForIdent('ActiveProgramID');
+            $varID = $this->GetIDForIdent('ActiveProgram');
             if ($varID) {
                 IPS_SetVariableCustomProfile($varID, $profileName);
             }
