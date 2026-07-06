@@ -16,12 +16,5 @@
     "prefix": "PB",
     "properties": {
         "AutoReconnectInterval": { "type": "integer", "default": 30 }
-    },
-    "actions": [
-        {
-            "type": "Button",
-            "label": "Programme vom Gerät laden",
-            "onClick": "PB_FetchPrograms($id);"
-        }
-    ]
+    }
 }
