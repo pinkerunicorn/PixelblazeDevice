@@ -108,7 +108,7 @@ class PixelblazeController extends IPSModule
         $data = json_decode($JSONString, true);
         
         // WebSocket Client Data ID für Text-Frames
-        if ($data['DataID'] == '{018EF6B5-AB94-40C6-AA53-46943E824ACF}') {
+        if ($data['DataID'] == '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}') {
             $payload = json_decode($data['Buffer'], true);
 
             if (is_array($payload)) {
@@ -169,7 +169,7 @@ class PixelblazeController extends IPSModule
         $jsonPayload = json_encode($payload);
         
         $msg = [
-            'DataID' => '{018EF6B5-AB94-40C6-AA53-46943E824ACF}', // WS Text Frame
+            'DataID' => '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}', // WS Text Frame
             'Buffer' => $jsonPayload
         ];
 
