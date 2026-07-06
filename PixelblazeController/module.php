@@ -15,13 +15,13 @@ class PixelblazeController extends IPSModule
         $this->RegisterPropertyInteger('AutoReconnectInterval', 30);
 
         // Internes Attribut für die letzte Helligkeit vor dem Ausschalten
-        $this->RegisterAttributeFloat('LastBrightness', 50.0);
+        $this->RegisterAttributeInteger('LastBrightness', 50);
 
         // Variablen
         $this->RegisterVariableBoolean('Power', 'Status', '~Switch', 10);
         $this->EnableAction('Power');
 
-        $this->RegisterVariableFloat('Brightness', 'Helligkeit', '~Intensity.100', 20);
+        $this->RegisterVariableInteger('Brightness', 'Helligkeit', '~Intensity.100', 20);
         $this->EnableAction('Brightness');
 
         $this->RegisterVariableString('ActiveProgramID', 'Programm ID', '', 30);
@@ -70,11 +70,11 @@ class PixelblazeController extends IPSModule
             case 'Power':
                 if ($Value) {
                     // Einschalten -> Letzte Helligkeit wiederherstellen
-                    $brightness = $this->ReadAttributeFloat('LastBrightness');
+                    $brightness = $this->ReadAttributeInteger('LastBrightness');
                     if ($brightness <= 0) {
-                        $brightness = 100.0;
+                        $brightness = 100;
                     }
-                    $this->SetBrightness($brightness);
+                    $this->SetBrightness((float)$brightness);
                     $this->SetValue('Power', true);
                     $this->SetValue('Brightness', $brightness);
                     $this->LogMessage("Angeschaltet mit Helligkeit: " . $brightness . "%");
@@ -82,18 +82,18 @@ class PixelblazeController extends IPSModule
                     // Ausschalten -> Aktuelle Helligkeit speichern, dann auf 0 setzen
                     $current = $this->GetValue('Brightness');
                     if ($current > 0) {
-                        $this->WriteAttributeFloat('LastBrightness', $current);
+                        $this->WriteAttributeInteger('LastBrightness', $current);
                     }
                     $this->SetBrightness(0.0);
                     $this->SetValue('Power', false);
-                    $this->SetValue('Brightness', 0.0);
+                    $this->SetValue('Brightness', 0);
                     $this->LogMessage("Ausgeschaltet. Letzte Helligkeit " . $current . "% gespeichert.");
                 }
                 break;
 
             case 'Brightness':
                 $this->SetBrightness((float)$Value);
-                $this->SetValue('Brightness', (float)$Value);
+                $this->SetValue('Brightness', (int)$Value);
                 
                 if ($Value > 0) {
                     $this->SetValue('Power', true);
@@ -155,8 +155,9 @@ class PixelblazeController extends IPSModule
             if (strpos($buffer, '{') === 0) {
                 $payload = json_decode($buffer, true);
                 if (is_array($payload)) {
+                    // Helligkeit
                     if (isset($payload['brightness'])) {
-                        $brightness = (float)$payload['brightness'] * 100.0;
+                        $brightness = (int)round((float)$payload['brightness'] * 100.0);
                         if ($brightness != $this->GetValue('Brightness')) {
                             $this->SetValue('Brightness', $brightness);
                             $this->SetValue('Power', $brightness > 0);
