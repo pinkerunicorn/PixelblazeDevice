@@ -106,32 +106,101 @@ class PixelblazeController extends IPSModule
         }
     }
 
+    public function FetchPrograms()
+    {
+        $this->SendJsonCommand(json_encode(['listPrograms' => true]));
+    }
+
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString, true);
         
-        // WebSocket Client Data ID für Text-Frames
-        if ($data['DataID'] == '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}') {
-            $payload = json_decode($data['Buffer'], true);
+        // WebSocket Client Data ID
+        if ($data['DataID'] == '{018EF6B5-AB94-40C6-AA53-46943E824ACF}') {
+            $buffer = $data['Buffer'];
 
-            if (is_array($payload)) {
-                // Helligkeit vom Pixelblaze empfangen
-                if (isset($payload['brightness'])) {
-                    $brightness = (float)$payload['brightness'] * 100.0;
-                    if ($brightness != $this->GetValue('Brightness')) {
-                        $this->SetValue('Brightness', $brightness);
-                        $this->SetValue('Power', $brightness > 0);
+            // Prfe auf JSON Text-Frame (Status Updates etc.)
+            if (strpos($buffer, '{') === 0) {
+                $payload = json_decode($buffer, true);
+                if (is_array($payload)) {
+                    if (isset($payload['brightness'])) {
+                        $brightness = (float)$payload['brightness'] * 100.0;
+                        if ($brightness != $this->GetValue('Brightness')) {
+                            $this->SetValue('Brightness', $brightness);
+                            $this->SetValue('Power', $brightness > 0);
+                        }
+                    }
+                    if (isset($payload['activeProgram']['activeProgramId'])) {
+                        $progId = $payload['activeProgram']['activeProgramId'];
+                        if ($progId != $this->GetValue('ActiveProgramID')) {
+                            $this->SetValue('ActiveProgramID', $progId);
+                        }
                     }
                 }
+                return;
+            }
 
-                // Aktives Programm empfangen
-                if (isset($payload['activeProgram']['activeProgramId'])) {
-                    $progId = $payload['activeProgram']['activeProgramId'];
-                    if ($progId != $this->GetValue('ActiveProgramID')) {
-                        $this->SetValue('ActiveProgramID', $progId);
-                    }
+            // Prfe auf binren listPrograms Frame (0x07)
+            if (strlen($buffer) >= 2 && ord($buffer[0]) === 0x07) {
+                $flags = ord($buffer[1]);
+                $payload = substr($buffer, 2);
+
+                if ($flags & 0x01) { // Start
+                    $this->SetBuffer('ProgramListBuffer', '');
+                }
+
+                $currentBuffer = $this->GetBuffer('ProgramListBuffer');
+                $currentBuffer .= $payload;
+                $this->SetBuffer('ProgramListBuffer', $currentBuffer);
+
+                if ($flags & 0x04) { // End
+                    $this->ProcessProgramList($currentBuffer);
+                    $this->SetBuffer('ProgramListBuffer', '');
                 }
             }
+        }
+    }
+
+    private function ProcessProgramList($rawList)
+    {
+        $lines = explode("\n", trim($rawList));
+        $programs = [];
+        foreach ($lines as $line) {
+            $parts = explode("\t", trim($line));
+            if (count($parts) >= 2) {
+                $id = $parts[0];
+                $name = $parts[1];
+                if (!empty($id)) {
+                    $programs[$id] = $name;
+                }
+            }
+        }
+
+        if (count($programs) > 0) {
+            $profileName = "Pixelblaze.Program." . $this->InstanceID;
+            
+            if (!IPS_VariableProfileExists($profileName)) {
+                IPS_CreateVariableProfile($profileName, 3); // 3 = String
+                IPS_SetVariableProfileIcon($profileName, "Script");
+            }
+
+            // Alle alten Assoziationen lschen
+            $oldProfile = IPS_GetVariableProfile($profileName);
+            foreach ($oldProfile['Associations'] as $asc) {
+                IPS_SetVariableProfileAssociation($profileName, $asc['Value'], "", "", -1);
+            }
+
+            // Neue Assoziationen hinzufgen
+            foreach ($programs as $id => $name) {
+                IPS_SetVariableProfileAssociation($profileName, $id, $name, "", -1);
+            }
+
+            $varID = $this->GetIDForIdent('ActiveProgramID');
+            if ($varID) {
+                IPS_SetVariableCustomProfile($varID, $profileName);
+            }
+
+            $this->LogMessage(count($programs) . " Programme geladen und als Dropdown hinterlegt.");
         }
     }
 
