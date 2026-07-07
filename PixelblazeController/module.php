@@ -25,6 +25,18 @@ class PixelblazeController extends IPSModule
 
         $this->RegisterVariableInteger('Brightness', '🔆 Helligkeit', '', 20);
         $this->EnableAction('Brightness');
+            
+            if (!IPS_VariableProfileExists('Pixelblaze.Program')) {
+                IPS_CreateVariableProfile('Pixelblaze.Program', 1);
+                IPS_SetVariableProfileIcon('Pixelblaze.Program', 'Script');
+            }
+            
+            $profileInfo = IPS_GetVariableProfile('Pixelblaze.Program');
+            if (isset($profileInfo['Associations'])) {
+                foreach ($profileInfo['Associations'] as $ass) {
+                    IPS_SetVariableProfileAssociation('Pixelblaze.Program', $ass['Value'], "", "", -1);
+                }
+            }
 
         $this->RegisterVariableInteger('ActiveProgram', '🎨 Programm', 'Pixelblaze.Program', 30);
         $this->EnableAction('ActiveProgram');
@@ -63,18 +75,6 @@ class PixelblazeController extends IPSModule
 
             $mapRaw = $this->ReadAttributeString('ProgramMap');
             $map = json_decode($mapRaw, true);
-            
-            if (!IPS_VariableProfileExists('Pixelblaze.Program')) {
-                IPS_CreateVariableProfile('Pixelblaze.Program', 1);
-                IPS_SetVariableProfileIcon('Pixelblaze.Program', 'Script');
-            }
-            
-            $profileInfo = IPS_GetVariableProfile('Pixelblaze.Program');
-            if (isset($profileInfo['Associations'])) {
-                foreach ($profileInfo['Associations'] as $ass) {
-                    IPS_SetVariableProfileAssociation('Pixelblaze.Program', $ass['Value'], "", "", -1);
-                }
-            }
             
             if (is_array($map)) {
                 foreach ($map as $i => $prog) {
