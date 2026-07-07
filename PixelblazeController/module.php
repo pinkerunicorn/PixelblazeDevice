@@ -20,10 +20,10 @@ class PixelblazeController extends IPSModule
         $this->RegisterAttributeString('ProgramMap', '[]');
 
         // Variablen
-        $this->RegisterVariableBoolean('Power', '💡 Status', '~Switch', 10);
+        $this->RegisterVariableBoolean('Power', '💡 Status', '', 10);
         $this->EnableAction('Power');
 
-        $this->RegisterVariableInteger('Brightness', '🔆 Helligkeit', '~Intensity.100', 20);
+        $this->RegisterVariableInteger('Brightness', '🔆 Helligkeit', '', 20);
         $this->EnableAction('Brightness');
 
         $this->RegisterVariableInteger('ActiveProgram', '🎨 Programm', '', 30);
@@ -61,9 +61,26 @@ class PixelblazeController extends IPSModule
                 'SUFFIX' => ' %'
             ]);
 
-            IPS_SetVariableCustomPresentation($this->GetIDForIdent('ActiveProgram'), [
-                'ICON' => 'Script'
-            ]);
+            $associations = [];
+            $mapRaw = $this->ReadAttributeString('ProgramMap');
+            $map = json_decode($mapRaw, true);
+            if (is_array($map)) {
+                foreach ($map as $i => $prog) {
+                    $associations[] = [
+                        'VALUE' => $i,
+                        'NAME'  => $prog['name'],
+                        'ICON'  => '',
+                        'COLOR' => -1
+                    ];
+                }
+            }
+            
+            $activeProgPres = ['ICON' => 'Script'];
+            if (count($associations) > 0) {
+                $activeProgPres['ASSOCIATIONS'] = $associations;
+            }
+
+            IPS_SetVariableCustomPresentation($this->GetIDForIdent('ActiveProgram'), $activeProgPres);
         }
     }
 
@@ -240,27 +257,21 @@ class PixelblazeController extends IPSModule
         if (count($programs) > 0) {
             $this->WriteAttributeString('ProgramMap', json_encode($programs));
 
-            $profileName = "Pixelblaze.Program." . $this->InstanceID;
-            
-            if (!IPS_VariableProfileExists($profileName)) {
-                IPS_CreateVariableProfile($profileName, 1); // 1 = Integer
-                IPS_SetVariableProfileIcon($profileName, "Script");
-            }
-
-            // Alle alten Assoziationen löschen
-            $oldProfile = IPS_GetVariableProfile($profileName);
-            foreach ($oldProfile['Associations'] as $asc) {
-                IPS_SetVariableProfileAssociation($profileName, $asc['Value'], "", "", -1);
-            }
-
-            // Neue Assoziationen hinzufügen
-            foreach ($programs as $i => $prog) {
-                IPS_SetVariableProfileAssociation($profileName, $i, $prog['name'], "", -1);
-            }
-
             $varID = $this->GetIDForIdent('ActiveProgram');
-            if ($varID) {
-                IPS_SetVariableCustomProfile($varID, $profileName);
+            if ($varID && function_exists('IPS_SetVariableCustomPresentation')) {
+                $associations = [];
+                foreach ($programs as $i => $prog) {
+                    $associations[] = [
+                        'VALUE' => $i,
+                        'NAME'  => $prog['name'],
+                        'ICON'  => '',
+                        'COLOR' => -1
+                    ];
+                }
+                IPS_SetVariableCustomPresentation($varID, [
+                    'ICON' => 'Script',
+                    'ASSOCIATIONS' => $associations
+                ]);
             }
 
             $this->LogMessage(count($programs) . " Programme geladen und als Dropdown hinterlegt.");
