@@ -82,6 +82,23 @@ class PixelblazeController extends IPSModule
                 }
             }
         }
+        
+        $this->UpdateVisibility($this->GetValue('Power'));
+    }
+
+    private function UpdateVisibility(bool $isVisible): void
+    {
+        $hidden = !$isVisible;
+        $this->SetHiddenSafe('Brightness', $hidden);
+        $this->SetHiddenSafe('ActiveProgram', $hidden);
+    }
+
+    private function SetHiddenSafe(string $ident, bool $hidden): void
+    {
+        $id = @$this->GetIDForIdent($ident);
+        if ($id > 0) {
+            IPS_SetHidden($id, $hidden);
+        }
     }
 
     protected function LogMessage($Message, $KL_MESSAGE = KL_MESSAGE): void
@@ -102,6 +119,7 @@ class PixelblazeController extends IPSModule
                     $this->SetBrightness((float)$brightness);
                     $this->SetValue('Power', true);
                     $this->SetValue('Brightness', $brightness);
+                    $this->UpdateVisibility(true);
                     $this->LogMessage("Angeschaltet mit Helligkeit: " . $brightness . "%");
                 } else {
                     // Ausschalten -> Aktuelle Helligkeit speichern, dann auf 0 setzen
@@ -112,6 +130,7 @@ class PixelblazeController extends IPSModule
                     $this->SetBrightness(0.0);
                     $this->SetValue('Power', false);
                     $this->SetValue('Brightness', 0);
+                    $this->UpdateVisibility(false);
                     $this->LogMessage("Ausgeschaltet. Letzte Helligkeit " . $current . "% gespeichert.");
                 }
                 break;
@@ -122,9 +141,11 @@ class PixelblazeController extends IPSModule
                 
                 if ($Value > 0) {
                     $this->SetValue('Power', true);
+                    $this->UpdateVisibility(true);
                     $this->LogMessage("Helligkeit auf " . $Value . "% gesetzt (Gerät AN).");
                 } else {
                     $this->SetValue('Power', false);
+                    $this->UpdateVisibility(false);
                     $this->LogMessage("Helligkeit auf 0% gesetzt (Gerät AUS).");
                 }
                 break;
@@ -194,6 +215,7 @@ class PixelblazeController extends IPSModule
                         if ($brightness != $this->GetValue('Brightness')) {
                             $this->SetValue('Brightness', $brightness);
                             $this->SetValue('Power', $brightness > 0);
+                            $this->UpdateVisibility($brightness > 0);
                         }
                     }
                     if (isset($payload['activeProgram']['activeProgramId'])) {
