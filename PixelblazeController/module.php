@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 class PixelblazeController extends IPSModule
 {
+    public function GetCompatibleParents(): array
+    {
+        return ["{D68FD31F-0E90-7019-F16C-1949BD3079EF}"];
+    }
+
     public function Create(): void
     {
         parent::Create();
@@ -99,12 +104,13 @@ class PixelblazeController extends IPSModule
         }
     }
 
-    protected function LogMessage($Message, $Type)
+    protected function LogMessage(string $Message, int $Type = KL_MESSAGE): bool
     {
-        IPS_LogMessage('SmartVillaKunterbunt', 'PixelblazeController: ' . $Message);
+        parent::LogMessage('PixelblazeController: ' . $Message, $Type);
+        return true;
     }
 
-    public function RequestAction($Ident, $Value): void
+    public function RequestAction(string $Ident, $Value): void
     {
         switch ($Ident) {
             case 'Power':
@@ -195,7 +201,7 @@ class PixelblazeController extends IPSModule
         return ($instance && isset($instance['ConnectionID'])) ? $instance['ConnectionID'] : 0;
     }
 
-    public function ReceiveData($JSONString): void
+    public function ReceiveData(string $JSONString): string
     {
         $data = json_decode($JSONString, true);
         
@@ -233,7 +239,7 @@ class PixelblazeController extends IPSModule
                         }
                     }
                 }
-                return;
+                return "";
             }
 
             // Prfe auf binren listPrograms Frame (0x07)
