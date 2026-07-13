@@ -54,17 +54,17 @@ class PixelblazeController extends IPSModuleStrict
         $this->SetTimerInterval('ReconnectTimer', $interval * 1000);
 
         IPS_SetVariableCustomPresentation($this->GetIDForIdent('Power'), [
-            'PRESENTATION' => VARIABLE_PRESENTATION_SWITCH,
-            'ICON' => 'Power'
+            'Presentation' => VARIABLE_PRESENTATION_SWITCH,
+            'Icon' => 'Power'
         ]);
 
         IPS_SetVariableCustomPresentation($this->GetIDForIdent('Brightness'), [
-            'PRESENTATION' => VARIABLE_PRESENTATION_SLIDER,
-            'ICON' => 'Sun',
-            'MIN' => 0.0,
-            'MAX' => 100.0,
-            'STEP' => 1.0,
-            'SUFFIX' => ' %'
+            'Presentation' => VARIABLE_PRESENTATION_SLIDER,
+            'Icon' => 'Sun',
+            'Min' => 0.0,
+            'Max' => 100.0,
+            'Step' => 1.0,
+            'Suffix' => ' %'
         ]);
 
         $mapRaw = $this->ReadAttributeString('ProgramMap');
@@ -278,16 +278,16 @@ class PixelblazeController extends IPSModuleStrict
             $associations = [];
             foreach ($programs as $i => $prog) {
                 $associations[] = [
-                    'VALUE' => $i,
-                    'NAME' => $prog['name'],
-                    'ICON' => '',
-                    'COLOR' => -1
+                    'Value' => $i,
+                    'Name' => $prog['name'],
+                    'Icon' => '',
+                    'Color' => -1
                 ];
             }
 
             IPS_SetVariableCustomPresentation($this->GetIDForIdent('ActiveProgram'), [
-                'ICON' => 'Script',
-                'ASSOCIATIONS' => $associations
+                'Icon' => 'Script',
+                'Associations' => $associations
             ]);
 
             $this->LogMessage(count($programs) . " Programme geladen und als Dropdown hinterlegt.", KL_MESSAGE);
