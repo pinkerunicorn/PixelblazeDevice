@@ -342,9 +342,14 @@ class PixelblazeController extends IPSModuleStrict
 {
     "elements": [
         {
-            "type": "NumberSpinner",
-            "name": "AutoReconnectInterval",
-            "caption": "Auto-Reconnect Intervall (Sekunden)"
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "NumberSpinner",
+                    "name": "AutoReconnectInterval",
+                    "caption": "Auto-Reconnect Intervall (Sekunden)"
+                }
+            ]
         }
     ],
     "actions": [
