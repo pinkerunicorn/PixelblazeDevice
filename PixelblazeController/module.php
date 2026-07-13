@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-class PixelblazeController extends IPSModule
+class PixelblazeController extends IPSModuleStrict
 {
-    public function GetCompatibleParents(): array
+    public function GetCompatibleParents(): string
     {
-        return ["{D68FD31F-0E90-7019-F16C-1949BD3079EF}"];
+        return '["{D68FD31F-0E90-7019-F16C-1949BD3079EF}"]';
     }
 
     public function Create(): void
@@ -14,7 +14,7 @@ class PixelblazeController extends IPSModule
         parent::Create();
 
         // Fordere WebSocket Client als Parent an
-        $this->RequireParent("{D68FD31F-0E90-7019-F16C-1949BD3079EF}");
+        
 
         // Properties
         $this->RegisterPropertyInteger('AutoReconnectInterval', 30);
@@ -104,7 +104,7 @@ class PixelblazeController extends IPSModule
         }
     }
 
-    protected function LogMessage(string $Message, int $Type = KL_MESSAGE): bool
+    protected function LogMessage(string $Message, int $Type): bool
     {
         parent::LogMessage('PixelblazeController: ' . $Message, $Type);
         return true;
@@ -261,6 +261,8 @@ class PixelblazeController extends IPSModule
                 }
             }
         }
+        
+        return "";
     }
 
     private function ProcessProgramList($rawList): void
