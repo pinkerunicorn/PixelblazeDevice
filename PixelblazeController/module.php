@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 class PixelblazeController extends IPSModuleStrict
 {
-    public function GetCompatibleParents(): string
-    {
-        return '["{D68FD31F-0E90-7019-F16C-1949BD3079EF}"]';
-    }
 
     public function Create(): void
     {
