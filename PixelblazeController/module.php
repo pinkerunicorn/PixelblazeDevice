@@ -275,20 +275,17 @@ class PixelblazeController extends IPSModuleStrict
                 if (count($programs) > 0) {
             $this->WriteAttributeString('ProgramMap', json_encode($programs));
 
-            $associations = [];
-            foreach ($programs as $i => $prog) {
-                $associations[] = [
-                    'Value' => $i,
-                    'Name' => $prog['name'],
-                    'Icon' => '',
-                    'Color' => -1
-                ];
+            $profileName = 'Pixelblaze.Program.' . $this->InstanceID;
+            if (!IPS_VariableProfileExists($profileName)) {
+                IPS_CreateVariableProfile($profileName, 1);
+                IPS_SetVariableProfileIcon($profileName, 'Script');
             }
-
-            IPS_SetVariableCustomPresentation($this->GetIDForIdent('ActiveProgram'), [
-                'Icon' => 'Script',
-                'Associations' => $associations
-            ]);
+            
+            foreach ($programs as $i => $prog) {
+                IPS_SetVariableProfileAssociation($profileName, $i, $prog['name'], '', -1);
+            }
+            
+            IPS_SetVariableCustomProfile($this->GetIDForIdent('ActiveProgram'), $profileName);
 
             $this->LogMessage(count($programs) . " Programme geladen und als Dropdown hinterlegt.", KL_MESSAGE);
         }
