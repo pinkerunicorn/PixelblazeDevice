@@ -1,20 +1,25 @@
 {
-    "id":  "{9E05AE57-F71D-457A-AB30-A8FE3A086782}",
-    "name":  "PixelblazeController",
-    "type":  3,
-    "vendor":  "SmartVillaKunterbunt",
-    "aliases":  [
-                    "Pixelblaze"
-                ],
-    "parentRequirements":  [
-                               "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
-                           ],
-    "childRequirements":  [
-
-                          ],
-    "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}"],
+    "id": "{9E05AE57-F71D-457A-AB30-A8FE3A086782}",
+    "name": "PixelblazeController",
+    "type": 3,
+    "vendor": "SmartVillaKunterbunt",
+    "aliases": [
+        "Pixelblaze"
+    ],
+    "parentRequirements": [
+        "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
+    ],
+    "childRequirements": [],
+    "implemented": [
+        "{018EF6B5-AB94-40C6-AA53-46943E824ACF}"
+    ],
     "prefix": "PB",
     "properties": {
-        "AutoReconnectInterval": { "type": "integer", "default": 30 }
-    }
+        "AutoReconnectInterval": {
+            "type": "integer",
+            "default": 30
+        }
+    },
+    "author": "Florian Graßinger",
+    "url": "https://github.com/pinkerunicorn/"
 }
