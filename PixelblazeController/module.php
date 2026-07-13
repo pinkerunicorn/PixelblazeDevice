@@ -99,7 +99,7 @@ class PixelblazeController extends IPSModule
         }
     }
 
-    protected function LogMessage(string $Message, int $KL_MESSAGE = KL_MESSAGE): bool: void
+    protected function LogMessage($Message, $Type)
     {
         IPS_LogMessage('SmartVillaKunterbunt', 'PixelblazeController: ' . $Message);
     }
