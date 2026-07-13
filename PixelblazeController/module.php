@@ -53,20 +53,29 @@ class PixelblazeController extends IPSModuleStrict
         $interval = $this->ReadPropertyInteger('AutoReconnectInterval');
         $this->SetTimerInterval('ReconnectTimer', $interval * 1000);
 
-        IPS_SetVariableCustomPresentation($this->GetIDForIdent('Power'), json_encode([
+        IPS_SetVariableCustomPresentation($this->GetIDForIdent('Power'), [
             'PRESENTATION' => VARIABLE_PRESENTATION_SWITCH,
             'ICON' => 'Power'
-        ]));
+        ]);
 
-        IPS_SetVariableCustomPresentation($this->GetIDForIdent('Brightness'), json_encode([
+        IPS_SetVariableCustomPresentation($this->GetIDForIdent('Brightness'), [
             'PRESENTATION' => VARIABLE_PRESENTATION_SLIDER,
             'ICON' => 'Sun',
             'MIN' => 0.0,
             'MAX' => 100.0,
             'STEP' => 1.0,
             'SUFFIX' => ' %'
-        ]));
+        ]);
 
+        $mapRaw = $this->ReadAttributeString('ProgramMap');
+        $map = json_decode($mapRaw, true);
+        
+        if (is_array($map)) {
+            foreach ($map as $i => $prog) {
+                IPS_SetVariableProfileAssociation('Pixelblaze.Program', $i, $prog['name'], '', -1);
+            }
+        }
+        
         $this->UpdateVisibility($this->GetValue('Power'));
     }
 
@@ -276,10 +285,10 @@ class PixelblazeController extends IPSModuleStrict
                 ];
             }
 
-            IPS_SetVariableCustomPresentation($this->GetIDForIdent('ActiveProgram'), json_encode([
+            IPS_SetVariableCustomPresentation($this->GetIDForIdent('ActiveProgram'), [
                 'ICON' => 'Script',
                 'ASSOCIATIONS' => $associations
-            ]));
+            ]);
 
             $this->LogMessage(count($programs) . " Programme geladen und als Dropdown hinterlegt.", KL_MESSAGE);
         }
