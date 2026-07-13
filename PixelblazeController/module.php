@@ -54,17 +54,17 @@ class PixelblazeController extends IPSModuleStrict
         $this->SetTimerInterval('ReconnectTimer', $interval * 1000);
 
         IPS_SetVariableCustomPresentation($this->GetIDForIdent('Power'), [
-            'Presentation' => VARIABLE_PRESENTATION_SWITCH,
-            'Icon' => 'Power'
+            'PRESENTATION' => VARIABLE_PRESENTATION_SWITCH,
+            'ICON' => 'Power'
         ]);
 
         IPS_SetVariableCustomPresentation($this->GetIDForIdent('Brightness'), [
-            'Presentation' => VARIABLE_PRESENTATION_SLIDER,
-            'Icon' => 'Sun',
-            'Min' => 0.0,
-            'Max' => 100.0,
-            'Step' => 1.0,
-            'Suffix' => ' %'
+            'PRESENTATION' => VARIABLE_PRESENTATION_SLIDER,
+            'ICON' => 'Sun',
+            'MIN' => 0.0,
+            'MAX' => 100.0,
+            'STEP' => 1.0,
+            'SUFFIX' => ' %'
         ]);
 
         $mapRaw = $this->ReadAttributeString('ProgramMap');
