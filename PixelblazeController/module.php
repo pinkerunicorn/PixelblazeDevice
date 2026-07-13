@@ -335,4 +335,27 @@ class PixelblazeController extends IPSModuleStrict
         $this->SendDataToParent(json_encode($msg));
         $this->SendDebug("Transmit", $jsonPayload, 0);
     }
+
+    public function GetConfigurationForm(): string
+    {
+        return <<<'EOT'
+{
+    "elements": [
+        {
+            "type": "NumberSpinner",
+            "name": "AutoReconnectInterval",
+            "caption": "Auto-Reconnect Intervall (Sekunden)"
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "label": "Programme vom Gerät laden",
+            "onClick": "PB_FetchPrograms($id);"
+        }
+    ]
 }
+EOT;
+    }
+}
+
