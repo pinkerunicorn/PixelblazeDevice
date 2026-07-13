@@ -58,28 +58,26 @@ class PixelblazeController extends IPSModule
         $interval = $this->ReadPropertyInteger('AutoReconnectInterval');
         $this->SetTimerInterval('ReconnectTimer', $interval * 1000);
 
-        if (function_exists('IPS_SetVariableCustomPresentation')) {
-            IPS_SetVariableCustomPresentation($this->GetIDForIdent('Power'), [
-                'PRESENTATION' => VARIABLE_PRESENTATION_SWITCH,
-                'ICON' => 'Power'
-            ]);
+        IPS_SetVariableCustomPresentation($this->GetIDForIdent('Power'), [
+            'PRESENTATION' => VARIABLE_PRESENTATION_SWITCH,
+            'ICON' => 'Power'
+        ]);
 
-            IPS_SetVariableCustomPresentation($this->GetIDForIdent('Brightness'), [
-                'PRESENTATION' => VARIABLE_PRESENTATION_SLIDER,
-                'ICON' => 'Sun',
-                'MIN' => 0.0,
-                'MAX' => 100.0,
-                'STEP' => 1.0,
-                'SUFFIX' => ' %'
-            ]);
+        IPS_SetVariableCustomPresentation($this->GetIDForIdent('Brightness'), [
+            'PRESENTATION' => VARIABLE_PRESENTATION_SLIDER,
+            'ICON' => 'Sun',
+            'MIN' => 0.0,
+            'MAX' => 100.0,
+            'STEP' => 1.0,
+            'SUFFIX' => ' %'
+        ]);
 
-            $mapRaw = $this->ReadAttributeString('ProgramMap');
-            $map = json_decode($mapRaw, true);
-            
-            if (is_array($map)) {
-                foreach ($map as $i => $prog) {
-                    IPS_SetVariableProfileAssociation('Pixelblaze.Program', $i, $prog['name'], '', -1);
-                }
+        $mapRaw = $this->ReadAttributeString('ProgramMap');
+        $map = json_decode($mapRaw, true);
+        
+        if (is_array($map)) {
+            foreach ($map as $i => $prog) {
+                IPS_SetVariableProfileAssociation('Pixelblaze.Program', $i, $prog['name'], '', -1);
             }
         }
         
