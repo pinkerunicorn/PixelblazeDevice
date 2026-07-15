@@ -14,6 +14,7 @@ class PixelblazeController extends IPSModuleStrict
 
         // Properties
         $this->RegisterPropertyInteger('AutoReconnectInterval', 30);
+        $this->RegisterPropertyInteger('FetchStateInterval', 10);
 
         // Internes Attribut für die letzte Helligkeit vor dem Ausschalten
         $this->RegisterAttributeInteger('LastBrightness', 50);
@@ -37,6 +38,7 @@ class PixelblazeController extends IPSModuleStrict
 
         // Timer für Auto-Reconnect
         $this->RegisterTimer('ReconnectTimer', 0, 'PB_Reconnect($_IPS[\'TARGET\']);');
+        $this->RegisterTimer('FetchStateTimer', 0, 'PB_FetchState($_IPS[\'TARGET\']);');
     }
 
     public function ApplyChanges(): void
@@ -57,6 +59,13 @@ class PixelblazeController extends IPSModuleStrict
 
         $interval = $this->ReadPropertyInteger('AutoReconnectInterval');
         $this->SetTimerInterval('ReconnectTimer', $interval * 1000);
+
+        $fetchInterval = $this->ReadPropertyInteger('FetchStateInterval');
+        $this->SetTimerInterval('FetchStateTimer', $fetchInterval * 1000);
+        
+        if ($this->HasActiveParent()) {
+            $this->FetchState();
+        }
 
         IPS_SetVariableCustomPresentation($this->GetIDForIdent('Power'), [
             'PRESENTATION' => VARIABLE_PRESENTATION_SWITCH,
@@ -171,6 +180,11 @@ class PixelblazeController extends IPSModuleStrict
     public function FetchPrograms(): void
     {
         $this->SendJsonCommand(json_encode(['listPrograms' => true]));
+    }
+
+    public function FetchState(): void
+    {
+        $this->SendJsonCommand(json_encode(['getConfig' => true]));
     }
 
     public function Reconnect(): void

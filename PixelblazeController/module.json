@@ -18,6 +18,10 @@
         "AutoReconnectInterval": {
             "type": "integer",
             "default": 30
+        },
+        "FetchStateInterval": {
+            "type": "integer",
+            "default": 10
         }
     },
     "author": "Florian Graßinger",
