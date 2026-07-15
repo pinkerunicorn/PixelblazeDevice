@@ -202,33 +202,39 @@ class PixelblazeController extends IPSModuleStrict
         
         // WebSocket Client Data ID
         if ($data['DataID'] == '{018EF6B5-AB94-40C6-AA53-46943E824ACF}') {
-            $buffer = $data['Buffer'];
+            $buffer = trim($data['Buffer']);
 
             // Prfe auf JSON Text-Frame (Status Updates etc.)
             if (strpos($buffer, '{') === 0) {
-                $payload = json_decode($buffer, true);
-                if (is_array($payload)) {
-                    // Helligkeit
-                    if (isset($payload['brightness'])) {
-                        $brightness = (int)round((float)$payload['brightness'] * 100.0);
-                        if ($brightness != $this->GetValue('Brightness')) {
-                            $this->SetValue('Brightness', $brightness);
-                            $this->SetValue('Power', $brightness > 0);
-                            $this->UpdateVisibility($brightness > 0);
+                // Pixelblaze sendet oft aneinandergereihte JSONs (z.B. {"fps":...}{"brightness":...})
+                $jsonChunks = str_replace('}{', '},{', $buffer);
+                $jsonArrayStr = '[' . $jsonChunks . ']';
+                $payloadArray = json_decode($jsonArrayStr, true);
+                
+                if (is_array($payloadArray)) {
+                    foreach ($payloadArray as $payload) {
+                        // Helligkeit
+                        if (isset($payload['brightness'])) {
+                            $brightness = (int)round((float)$payload['brightness'] * 100.0);
+                            if ($brightness != $this->GetValue('Brightness')) {
+                                $this->SetValue('Brightness', $brightness);
+                                $this->SetValue('Power', $brightness > 0);
+                                $this->UpdateVisibility($brightness > 0);
+                            }
                         }
-                    }
-                    if (isset($payload['activeProgram']['activeProgramId'])) {
-                        $progId = $payload['activeProgram']['activeProgramId'];
-                        
-                        $mapRaw = $this->ReadAttributeString('ProgramMap');
-                        $map = json_decode($mapRaw, true);
-                        if (is_array($map)) {
-                            foreach ($map as $index => $progData) {
-                                if ($progData['id'] === $progId) {
-                                    if ($index != $this->GetValue('ActiveProgram')) {
-                                        $this->SetValue('ActiveProgram', $index);
+                        if (isset($payload['activeProgram']['activeProgramId'])) {
+                            $progId = $payload['activeProgram']['activeProgramId'];
+                            
+                            $mapRaw = $this->ReadAttributeString('ProgramMap');
+                            $map = json_decode($mapRaw, true);
+                            if (is_array($map)) {
+                                foreach ($map as $index => $progData) {
+                                    if ($progData['id'] === $progId) {
+                                        if ($index != $this->GetValue('ActiveProgram')) {
+                                            $this->SetValue('ActiveProgram', $index);
+                                        }
+                                        break;
                                     }
-                                    break;
                                 }
                             }
                         }
