@@ -217,7 +217,9 @@ class PixelblazeController extends IPSModuleStrict
         
         // WebSocket Client Data ID
         if ($data['DataID'] == '{018EF6B5-AB94-40C6-AA53-46943E824ACF}') {
-            $buffer = trim($data['Buffer']);
+            $bufferRaw = trim($data['Buffer']);
+            // Ab IP-Symcon 6 wird der Buffer oft als HEX-String übergeben
+            $buffer = (ctype_xdigit($bufferRaw)) ? hex2bin($bufferRaw) : $bufferRaw;
 
             // Prfe auf JSON Text-Frame (Status Updates etc.)
             if (strpos($buffer, '{') === 0) {
