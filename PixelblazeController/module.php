@@ -346,19 +346,27 @@ class PixelblazeController extends IPSModuleStrict
     private function SendWebSocketCommand(array $payload): void
     {
         if (!$this->HasActiveParent()) {
-            $this->LogMessage("Fehler: Kein aktiver WebSocket Client verbunden.");
+            $this->LogMessage("Fehler: Kein aktiver WebSocket Client verbunden.", KL_WARNING);
             return;
         }
 
         $jsonPayload = json_encode($payload);
+        $parent = $this->GetParentID();
         
-        $msg = [
-            'DataID' => '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}', // WS Text Frame
-            'Buffer' => $jsonPayload
-        ];
-
-        $this->SendDataToParent(json_encode($msg));
-        $this->SendDebug("Transmit", $jsonPayload, 0);
+        if ($parent > 0) {
+            // WSC_SendMessage sendet garantiert einen Text-Frame
+            if (function_exists('WSC_SendMessage')) {
+                WSC_SendMessage($parent, $jsonPayload);
+            } else {
+                // Fallback fr Client Socket (raw TCP)
+                $msg = [
+                    'DataID' => '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}',
+                    'Buffer' => $jsonPayload
+                ];
+                $this->SendDataToParent(json_encode($msg));
+            }
+            $this->SendDebug("Transmit", $jsonPayload, 0);
+        }
     }
 
     public function GetConfigurationForm(): string
