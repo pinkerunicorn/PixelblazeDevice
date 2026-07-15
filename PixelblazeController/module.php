@@ -22,14 +22,17 @@ class PixelblazeController extends IPSModuleStrict
 
         // Variablen
         $this->RegisterVariableBoolean('Power', '💡 Status', '', 10);
+        IPS_SetIcon($this->GetIDForIdent('Power'), 'Power');
         $this->EnableAction('Power');
 
         $this->RegisterVariableInteger('Brightness', '🔆 Helligkeit', '', 20);
+        IPS_SetIcon($this->GetIDForIdent('Brightness'), 'Sun');
         $this->EnableAction('Brightness');
             
             
 
         $this->RegisterVariableInteger('ActiveProgram', '🎨 Programm', '', 30);
+        IPS_SetIcon($this->GetIDForIdent('ActiveProgram'), 'Script');
         $this->EnableAction('ActiveProgram');
 
         // Timer für Auto-Reconnect
@@ -44,6 +47,12 @@ class PixelblazeController extends IPSModuleStrict
         $oldVar = @$this->GetIDForIdent('ActiveProgramID');
         if ($oldVar > 0) {
             $this->UnregisterVariable('ActiveProgramID');
+        }
+
+        // Self-Healing: Reset all corrupted presentations
+        if (function_exists('IPS_SetVariableCustomPresentation')) {
+            IPS_SetVariableCustomPresentation($this->GetIDForIdent('Power'), []);
+            IPS_SetVariableCustomPresentation($this->GetIDForIdent('Brightness'), []);
         }
 
         $interval = $this->ReadPropertyInteger('AutoReconnectInterval');
