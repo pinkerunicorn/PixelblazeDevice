@@ -212,6 +212,7 @@ class PixelblazeController extends IPSModuleStrict
 
     public function ReceiveData(string $JSONString): string
     {
+        $this->SendDebug("RawReceiveData", $JSONString, 0);
         $data = json_decode($JSONString, true);
         
         // WebSocket Client Data ID
