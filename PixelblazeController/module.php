@@ -220,38 +220,50 @@ class PixelblazeController extends IPSModuleStrict
 
             // Prfe auf JSON Text-Frame (Status Updates etc.)
             if (strpos($buffer, '{') === 0) {
-                // Pixelblaze sendet oft aneinandergereihte JSONs (z.B. {"fps":...}{"brightness":...})
-                $jsonChunks = str_replace('}{', '},{', $buffer);
-                $jsonArrayStr = '[' . $jsonChunks . ']';
-                $payloadArray = json_decode($jsonArrayStr, true);
+                // Teile nach Zeilenumbrchen auf, falls mehrere Pakete zusammengefasst wurden
+                $lines = preg_split('/[\r\n]+/', $buffer);
                 
-                if (is_array($payloadArray)) {
-                    foreach ($payloadArray as $payload) {
-                        // Helligkeit
-                        if (isset($payload['brightness'])) {
-                            $brightness = (int)round((float)$payload['brightness'] * 100.0);
-                            if ($brightness != $this->GetValue('Brightness')) {
-                                $this->SetValue('Brightness', $brightness);
-                                $this->SetValue('Power', $brightness > 0);
-                                $this->UpdateVisibility($brightness > 0);
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if ($line === '') continue;
+
+                    // Pixelblaze sendet oft aneinandergereihte JSONs (z.B. {"fps":...}{"brightness":...})
+                    $jsonChunks = str_replace('}{', '},{', $line);
+                    $jsonArrayStr = '[' . $jsonChunks . ']';
+                    $payloadArray = json_decode($jsonArrayStr, true);
+                    
+                    if (is_array($payloadArray)) {
+                        foreach ($payloadArray as $payload) {
+                            if (!is_array($payload)) continue;
+
+                            // Helligkeit
+                            if (isset($payload['brightness'])) {
+                                $brightness = (int)round((float)$payload['brightness'] * 100.0);
+                                if ($brightness != $this->GetValue('Brightness')) {
+                                    $this->SetValue('Brightness', $brightness);
+                                    $this->SetValue('Power', $brightness > 0);
+                                    $this->UpdateVisibility($brightness > 0);
+                                }
                             }
-                        }
-                        if (isset($payload['activeProgram']['activeProgramId'])) {
-                            $progId = $payload['activeProgram']['activeProgramId'];
-                            
-                            $mapRaw = $this->ReadAttributeString('ProgramMap');
-                            $map = json_decode($mapRaw, true);
-                            if (is_array($map)) {
-                                foreach ($map as $index => $progData) {
-                                    if ($progData['id'] === $progId) {
-                                        if ($index != $this->GetValue('ActiveProgram')) {
-                                            $this->SetValue('ActiveProgram', $index);
+                            if (isset($payload['activeProgram']['activeProgramId'])) {
+                                $progId = $payload['activeProgram']['activeProgramId'];
+                                
+                                $mapRaw = $this->ReadAttributeString('ProgramMap');
+                                $map = json_decode($mapRaw, true);
+                                if (is_array($map)) {
+                                    foreach ($map as $index => $progData) {
+                                        if ($progData['id'] === $progId) {
+                                            if ($index != $this->GetValue('ActiveProgram')) {
+                                                $this->SetValue('ActiveProgram', $index);
+                                            }
+                                            break;
                                         }
-                                        break;
                                     }
                                 }
                             }
                         }
+                    } else {
+                        $this->SendDebug("JSONError", "Decode failed: " . json_last_error_msg() . " for: " . $line, 0);
                     }
                 }
                 return "";
