@@ -90,7 +90,7 @@ class PixelblazeController extends IPSModuleStrict
         }
     }
 
-    protected function LogMessage(string $Message, int $Type): bool
+    protected function LogMessage(string $Message, int $Type = KL_MESSAGE): bool
     {
         parent::LogMessage('PixelblazeController: ' . $Message, $Type);
         return true;
