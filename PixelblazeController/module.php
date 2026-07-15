@@ -32,9 +32,12 @@ class PixelblazeController extends IPSModuleStrict
             
             
 
-        $this->RegisterVariableInteger('ActiveProgram', '🎨 Programm', '', 30);
+        $this->RegisterVariableInteger('ActiveProgram', 'Programm', '', 30);
         IPS_SetIcon($this->GetIDForIdent('ActiveProgram'), 'Script');
         $this->EnableAction('ActiveProgram');
+
+        $this->RegisterVariableString('ActiveProgramName', 'Aktuelles Programm (Name)', '', 35);
+        IPS_SetIcon($this->GetIDForIdent('ActiveProgramName'), 'Information');
 
         // Timer für Auto-Reconnect
         $this->RegisterTimer('ReconnectTimer', 0, 'PB_Reconnect($_IPS[\'TARGET\']);');
@@ -251,6 +254,15 @@ class PixelblazeController extends IPSModuleStrict
                             if (isset($payload['activeProgram']['activeProgramId'])) {
                                 $progId = $payload['activeProgram']['activeProgramId'];
                                 
+                                // Speichere den echten Namen auch direkt in eine String-Variable zur Anzeige
+                                if (isset($payload['activeProgram']['name'])) {
+                                    $progName = $payload['activeProgram']['name'];
+                                    @$this->RegisterVariableString('ActiveProgramName', 'Aktuelles Programm (Name)', '', 35);
+                                    if ($this->GetValue('ActiveProgramName') !== $progName) {
+                                        $this->SetValue('ActiveProgramName', $progName);
+                                    }
+                                }
+
                                 $mapRaw = $this->ReadAttributeString('ProgramMap');
                                 $map = json_decode($mapRaw, true);
                                 if (is_array($map)) {
