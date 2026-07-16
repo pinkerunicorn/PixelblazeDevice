@@ -41,11 +41,16 @@ class PixelblazeController extends IPSModuleStrict
         $this->RegisterTimer('FetchStateTimer', 0, 'PB_FetchState($_IPS[\'TARGET\']);');
     }
 
-    public function GetCompatibleParents(): array
+    public function GetCompatibleParents(): string
     {
-        return [
-            '{D68FD31F-0E90-7019-F16C-1949BD3079EF}'
-        ];
+        return json_encode([
+            'type' => 'require',
+            'modules' => [
+                [
+                    'moduleID' => '{D68FD31F-0E90-7019-F16C-1949BD3079EF}'
+                ]
+            ]
+        ]);
     }
 
     public function ApplyChanges(): void
