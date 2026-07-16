@@ -9,9 +9,6 @@ class PixelblazeController extends IPSModuleStrict
     {
         parent::Create();
 
-        // Fordere WebSocket Client als Parent an
-        $this->RequireParent('{D68FD31F-0E90-7019-F16C-1949BD3079EF}');
-
         // Properties
         $this->RegisterPropertyInteger('AutoReconnectInterval', 30);
         $this->RegisterPropertyInteger('FetchStateInterval', 10);
@@ -42,6 +39,13 @@ class PixelblazeController extends IPSModuleStrict
         // Timer für Auto-Reconnect
         $this->RegisterTimer('ReconnectTimer', 0, 'PB_Reconnect($_IPS[\'TARGET\']);');
         $this->RegisterTimer('FetchStateTimer', 0, 'PB_FetchState($_IPS[\'TARGET\']);');
+    }
+
+    public function GetCompatibleParents(): array
+    {
+        return [
+            '{D68FD31F-0E90-7019-F16C-1949BD3079EF}'
+        ];
     }
 
     public function ApplyChanges(): void
