@@ -195,12 +195,13 @@ class PixelblazeController extends IPSModuleStrict
         if (!$this->HasActiveParent()) {
             $parentID = $this->GetParentID();
             if ($parentID > 0) {
-                // Nur reconnecten, wenn die Instanz grundstzlich "Open" geschaltet ist
-                if (IPS_GetProperty($parentID, 'Open')) {
+                // Nur reconnecten, wenn die Instanz grundstzlich "Open" oder "Active" geschaltet ist
+                $propName = IPS_PropertyExists($parentID, 'Active') ? 'Active' : (IPS_PropertyExists($parentID, 'Open') ? 'Open' : '');
+                if ($propName !== '' && IPS_GetProperty($parentID, $propName)) {
                     $this->LogMessage("Verbindung getrennt. Versuche Reconnect...");
-                    @IPS_SetProperty($parentID, 'Open', false);
+                    @IPS_SetProperty($parentID, $propName, false);
                     @IPS_ApplyChanges($parentID);
-                    @IPS_SetProperty($parentID, 'Open', true);
+                    @IPS_SetProperty($parentID, $propName, true);
                     @IPS_ApplyChanges($parentID);
                 }
             }
