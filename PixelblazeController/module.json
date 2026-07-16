@@ -1,29 +1,31 @@
 {
-    "id": "{9E05AE57-F71D-457A-AB30-A8FE3A086782}",
-    "name": "PixelblazeController",
-    "type": 3,
-    "vendor": "SmartVillaKunterbunt",
-    "aliases": [
-        "Pixelblaze"
-    ],
-    "parentRequirements": [
-        "{D68FD31F-0E90-7019-F16C-1949BD3079EF}"
-    ],
-    "childRequirements": [],
-    "implemented": [
-        "{018EF6B5-AB94-40C6-AA53-46943E824ACF}"
-    ],
-    "prefix": "PB",
-    "properties": {
-        "AutoReconnectInterval": {
-            "type": "integer",
-            "default": 30
-        },
-        "FetchStateInterval": {
-            "type": "integer",
-            "default": 10
-        }
-    },
-    "author": "Florian Graßinger",
-    "url": "https://github.com/pinkerunicorn/"
+    "id":  "{9E05AE57-F71D-457A-AB30-A8FE3A086782}",
+    "name":  "PixelblazeController",
+    "type":  3,
+    "vendor":  "SmartVillaKunterbunt",
+    "aliases":  [
+                    "Pixelblaze"
+                ],
+    "parentRequirements":  [
+                               "{D68FD31F-0E90-7019-F16C-1949BD3079EF}"
+                           ],
+    "childRequirements":  [
+
+                          ],
+    "implemented":  [
+                        "{018EF6B5-AB94-40C6-AA53-46943E824ACF}"
+                    ],
+    "prefix":  "PB",
+    "properties":  {
+                       "AutoReconnectInterval":  {
+                                                     "type":  "integer",
+                                                     "default":  30
+                                                 },
+                       "FetchStateInterval":  {
+                                                  "type":  "integer",
+                                                  "default":  10
+                                              }
+                   },
+    "author":  "Florian GraÃŸinger",
+    "url":  "https://github.com/pinkerunicorn/"
 }
