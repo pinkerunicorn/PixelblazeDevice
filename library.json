@@ -1,12 +1,12 @@
 {
-    "id":  "{7B1CA0ED-BD84-4ECA-8DFB-AF15B5115BEB}",
-    "author":  "Florian GraÃŸinger",
-    "name":  "PixelblazeDevice",
-    "url":  "https://github.com/pinkerunicorn/",
-    "compatibility":  {
-                          "version":  "8.0"
-                      },
-    "version":  "1.0",
-    "build":  0,
-    "date":  0
+    "id": "{7B1CA0ED-BD84-4ECA-8DFB-AF15B5115BEB}",
+    "author": "Florian Graßinger",
+    "name": "PixelblazeDevice",
+    "url": "https://github.com/pinkerunicorn/",
+    "compatibility": {
+        "version": "8.0"
+    },
+    "version": "1.0",
+    "build": 0,
+    "date": 0
 }
