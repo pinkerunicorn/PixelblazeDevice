@@ -10,7 +10,7 @@ class PixelblazeController extends IPSModuleStrict
         parent::Create();
 
         // Fordere WebSocket Client als Parent an
-        
+        $this->RequireParent('{D68FD31F-0E90-7019-F16C-1949BD3079EF}');
 
         // Properties
         $this->RegisterPropertyInteger('AutoReconnectInterval', 30);
