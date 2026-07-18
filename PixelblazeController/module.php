@@ -412,17 +412,30 @@ class PixelblazeController extends IPSModuleStrict
 {
     "elements": [
         {
+            "type": "Label",
+            "label": "Hier stellst du ein, wie oft das Modul im Hintergrund arbeiten soll. Du kannst das Auto-Reconnect Intervall für Verbindungsabbrüche und das Intervall für die Status-Abfrage anpassen."
+        },
+        {
             "type": "RowLayout",
             "items": [
                 {
                     "type": "NumberSpinner",
                     "name": "AutoReconnectInterval",
                     "caption": "Auto-Reconnect Intervall (Sekunden)"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "FetchStateInterval",
+                    "caption": "Status-Abfrage Intervall (Sekunden)"
                 }
             ]
         }
     ],
     "actions": [
+        {
+            "type": "Label",
+            "label": "Hier kannst du die auf dem Pixelblaze gespeicherten Programme abrufen, damit du sie in der Oberfläche bequem auswählen kannst."
+        },
         {
             "type": "Button",
             "label": "Programme vom Gerät laden",
